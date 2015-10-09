@@ -1,4 +1,4 @@
-# ESP8266-NodeMCU_Tiny-Door-and-Window-Sensor-with-Ultra-Low-Standby-Power
+# ESP8266/NodeMCU - Tiny Door and Window Sensor with Ultra Low Standby Power
 
 ## Intro
 Eine für Schalter angepasste Version des Briefkastenwächters. In der config.lua werden 2 Pushingbox Szenarios hinterlegt die direkt nach dem Start abhängig vom Zustand eines GPIO Pins aktiviert werden. Liegt z.B. am Pin ein LOW Pegel an wird das erste Szenario verwendet, sonst das zweite.
