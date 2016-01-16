@@ -1,6 +1,6 @@
 ##Tiny Door and Window Sensor/Alarm with Ultra Low Standby Power (<1µA)
 
-A **Ultra Low Standby Power Project** which pushes the state of a connected switch(reed/magnet or any other) every time it changes to one of 4 different services(you need to chooose and configure one). Supported "services": **ArrestDB**(this is not an online service but a php script which runs on my raspberry pi and saves the data in a sqlite database) **IFTTT**, **Pushingbox** and **Thingspeak**.
+A **Ultra Low Standby Power Project** which pushes the state of a connected switch(reed/magnet or any other) every time it changes to one of 4 different services(you need to chooose and configure one). Supported "services": [**ArrestDB**](https://github.com/alixaxel/ArrestDB)(this is not an online service, instead it's a php script which runs on my raspberry pi), [**IFTTT**](https://ifttt.com/), [**Pushingbox**](https://www.pushingbox.com/) and [**Thingspeak**](https://thingspeak.com/).
 
 ##Partlist:
 * ATtiny25(45/85)
@@ -42,12 +42,12 @@ Only two files must be edited.
 * Compile and upload the sketch (no configuration needed)
 * (go sure the fusebits are set correct (default value))
 
-##tiny breadboard setup
-By using one my own ESP Breakout Adapters, the breadboard setup is quite simple and looks like this:
+##Breadboard setup
+By using one my own ESP Breakout Adapters, the breadboard setup is quite simple and looks like this: TODO 
 ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Door and window sensor - breadboard setup")
 
 ##A small pcb
-I've also designed a small pcb which holds everything in place:
+I've also designed a small pcb which holds everything in place: TODO 
 ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Door and window sensor - pcb v0.2")
 
 ###More details and explainations: (in german) TODO
@@ -58,3 +58,9 @@ I've also designed a small pcb which holds everything in place:
 - https://github.com/nodemcu/nodemcu-firmware/wiki/nodemcu_api_en
 - http://www.atmel.com/Images/atmel-2586-avr-8-bit-microcontroller-attiny25-attiny45-attiny85_datasheet.pdf
 - http://www.engbedded.com/fusecalc/
+
+Services
+- https://github.com/alixaxel/ArrestDB
+- https://ifttt.com/
+- https://www.pushingbox.com/
+- https://thingspeak.com/
