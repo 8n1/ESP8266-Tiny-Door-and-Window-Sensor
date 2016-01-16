@@ -1,6 +1,6 @@
 ##Tiny Door and Window Sensor/Alarm with Ultra Low Standby Power (<1µA)
 
-A **Ultra Low Standby Power Project** which pushes the state of a connected switch(reed/magnet or any other) every time it changes to one of 4 different services(you need to chooose and configure one). Supported "services": [**ArrestDB**](https://github.com/alixaxel/ArrestDB)(this is not an online service, instead it's a php script which runs on my raspberry pi), [**IFTTT**](https://ifttt.com/), [**Pushingbox**](https://www.pushingbox.com/) and [**Thingspeak**](https://thingspeak.com/).
+A **Ultra Low Standby Power Project** which pushes the state of a connected switch(reed/magnet or any other) every time it changes to one of 4 different services(you need to chooose and configure one). Supported "services": [**ArrestDB**](https://github.com/alixaxel/ArrestDB)(this is not an online service but a php script which runs on my raspberry pi), [**IFTTT**](https://ifttt.com/), [**Pushingbox**](https://www.pushingbox.com/) and [**Thingspeak**](https://thingspeak.com/).
 
 ##Partlist:
 * ATtiny25(45/85)
