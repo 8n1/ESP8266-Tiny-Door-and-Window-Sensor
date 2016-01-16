@@ -26,7 +26,7 @@ The ATtiny wakes up through a pin change interrupt triggered by opening or closi
 ##Installation ESP
 * Clone/download this repository
 * Flash the nodemcu firmware (I'm using esptool.py for this)
-* Configure the two lua files ("config.lua" and "..._request.lua")
+* Configure the two lua files (->Configuration ESP)
 * Upload all lua files (I'm using ESPlorer for that)
 * Execute "compile_files.lua"
 * Done. Restart the ESP to test.
@@ -34,7 +34,7 @@ The ATtiny wakes up through a pin change interrupt triggered by opening or closi
 ##Configuration ESP
 Only two files must be edited.
 * Open and edit "config.lua"
-* Open and edit the selected service request script ("..._request.lua")
+* Open and edit the activated service request script ("..._request.lua")
 
 ##Installation ATtiny
 * Get the latest Arduino IDE (tested with 1.6.5)
