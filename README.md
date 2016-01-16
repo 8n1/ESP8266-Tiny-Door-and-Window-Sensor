@@ -20,7 +20,7 @@ Beside a few other tricks I've had to come up with to get the current consumptio
 
 
 ##Procedure
-The ATtiny wakes up through a pin change interrupt triggered by opening or closing the window/door(pressing or releasing the switch). The ATtiny activates the LDO and therefore the ESP-12. The ESP connects to the wifi, optionaly collects some data(**wifi signal strength**, **temperature**, **battery voltage**), reads the state of the (wakeup) switch and sends it along with the other colleted data to the choosen service. After that the ESP signals the ATtiny to shutdown the LDO and the system goes into standby, waiting for the next interrupt.
+The ATtiny wakes up from power-down through a pin change interrupt triggered by opening or closing the window/door(pressing or releasing the switch). The ATtiny activates the LDO and therefore the ESP-12. The ESP connects to the wifi, optionaly collects some data(**wifi signal strength**, **temperature**, **battery voltage**), reads the state of the (wakeup) switch and sends it along with the other colleted data to the choosen service. After that the ESP signals the ATtiny to shutdown the LDO and the system goes into standby, waiting for the next pc interrupt.
 
 
 ##Installation ESP
