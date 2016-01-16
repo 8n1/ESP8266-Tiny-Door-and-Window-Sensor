@@ -61,7 +61,7 @@ GET_WIFI_STRENGTH = false
 ----------------------------------------------------------
 -- Get the Temperature (OPTIONAL)
 ----------------------------------------------------------
-GET_DS_TEMPERATURE = true
+GET_DS_TEMPERATURE = false
 ----------------------------------------------------------
 -- ds18b20 data pin - Pin3=GPIO0
 tempsensor_pin = 3
@@ -69,7 +69,7 @@ tempsensor_pin = 3
 ----------------------------------------------------------
 -- Get the Battery voltage (OPTIONAL)
 ----------------------------------------------------------
-GET_BATTERY_VOLTAGE = true
+GET_BATTERY_VOLTAGE = false
 ----------------------------------------------------------
 -- resistor values for the voltage divider
 r1 = 47000	-- (r5 in the schematic)
