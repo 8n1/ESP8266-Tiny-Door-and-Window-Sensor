@@ -1,151 +1,200 @@
 --------------------------------------------
--- Tiny Door and Window Sensor v0.1 
+
+-- tiny Door and Window Sensor with Ultra Low Standby Power (<1µA)
+-- Version: 0.2
+-- Author: Johannes S. (joh.raspi)
+-- Changelog: 
+--  * Tempsensor added
+
+-- Default running time: 3-5 seconds
+-- If GET_WIFI_STRENGTH is activated: 4-6 seconds
+
 --------------------------------------------
 
---HEAP_DEBUG = true
+--------------------------------------
+-- intro
+print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+print("|  tiny Door and Window Sensor v0.2  |")
+print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
--- Load user config
+--------------------------------------
+-- load user config
 dofile("config.lc")
 
---------------------------------------
--- Intro
-print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-print("| Tiny Door and Window Sensor v0.1  |")
-print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+-- set ssid and password
+wifi.sta.config(SSID, PASSWD)
+-- configure as client only
+wifi.setmode(wifi.STATION)
+-- connect to the ap
+wifi.sta.connect()
 
 --------------------------------------
--- IO Configuration
---------------------------------------
--- switch
-gpio.mode(SWITCH_PIN, gpio.INPUT)
---------------------------------------
--- clear logfiles pin 
-gpio.mode(clear_logs_pin, gpio.INPUT)
-gpio.mode(clear_logs_pin, gpio.PULLUP)
+-- init the leds
+gpio.mode(act_led_pin, gpio.OUTPUT)
+gpio.write(act_led_pin, 0) 
+gpio.mode(ok_led_pin, gpio.OUTPUT)
+gpio.write(ok_led_pin, 0)
+gpio.mode(error_led_pin, gpio.OUTPUT)
+gpio.write(error_led_pin, 0)
 
 --------------------------------------
--- check the state of the switch
-if gpio.read(SWITCH_PIN) == 1 then
-    devid = OPENING_DEVID
-    print(" Switch is OPEN")
-else
-    devid = CLOSING_DEVID
-    print(" Switch is CLOSED")
-end
-print("(checking the state again before sending the request)\n")
-
---------------------------------------
--- GET Query String
-data = ""
-
---------------------------------------
--- Print and append (to the Query String) or Clear logfiles
-dofile("check_logs.lc")
-
---------------------------------------
--- Get the wifi strength and append it (it takes a second to get the rssi)
-if USE_WIFI_STRENGTH then
-    dofile("get_rssi.lc")
-end
-
---------------------------------------
--- Read temp sensor but ignore first reading because it is old and append it
-if USE_TEMP_SENSOR then
-    -- (small delay to let the heap recover)
-    tmr.alarm(2, 200, 0, function()
-        ds_debug = true
-        dofile("get_temp.lc")
-    end)
-end
-
---------------------------------------
--- ip check loop (also lets the battery, heap and tempsensor recover)
-local wifi_counter = 0
-tmr.alarm(0, 1500, 1, function()
-    --------------------------------------
-    -- Re-read the temperature and append it
-    if USE_TEMP_SENSOR then
-        dofile("get_temp.lc")
-        print(" Temperature: " ..ds_temp .."'C\n")
-        ds_temp = nil
-    end
-    USE_TEMP_SENSOR = nil
-
-    --------------------------------------
-    -- Calculate the battery voltage and append it
-    if USE_BATTERY_CHECK then
-        dofile("get_vcc.lc")
-        print(" Battery Voltage: " ..vin .."V\n")
-        vin = nil
-    end
-    USE_BATTERY_CHECK = nil
-
-    --------------------------------------
-    -- Check if we got a IP (DHCP)
-    if wifi.sta.getip() == nil then
-        print(" Checking IP...")
-    else
-        tmr.stop(0)
-        
-        --------------------------------------
-        -- Collect some Wifi information...
-        local ip = wifi.sta.getip()
-        local ip_time = string.format("%.2f", tmr.now()/1000/1000)
-        print(" -> Got IP: " ..ip .." (" ..ip_time .."s)\n")
-        -- ...and append it
-        data = data .."&ip=" ..ip .."&ip_time=" ..ip_time
-        ip, ip_time = nil
-        
-        --------------------------------------
-        -- Print wifi strength  (already got appended in get_rssi.lc)
-        if USE_WIFI_STRENGTH then
-            if rssi ~= nil then
-                print(" -> RSSI is: "..rssi.."dBm")
-                print(" -> Quality is: "..quality.."%\n")
-                rssi, quality, listap = nil
-            else
-                print(" -> Could not find AP: " ..SSID)
-            end
-        end
-        USE_WIFI_STRENGTH = nil
-
-        --------------------------------------
-        -- Load fail_save() function
-        dofile("fail_save.lc")
-        
-        --------------------------------------
-        -- Get the date/time, append it and launch the Pushingbox Scenario / small delay to let the heap recover
-        tmr.alarm(0, 300, 0, function()
-            if USE_DATE_TIME then
-                print(" Getting time...")
-                dofile("get_time.lc")
-            else
-                print(" Launching Pushingbox Scenario...")
-                fail_safe("launch_scenario.lc", "req_fails")
-            end
-        end)
-    end
+ -- signal the ATtiny to shut down the vreg
+ --------------------------------------
+function vreg_shutdown()     
+    -- turn off the activity led
+    tmr.stop(1)
+    gpio.write(act_led_pin, 0)
     
-    --------------------------------------
-    -- Check max 8 times if got a IP (~15s)
-    if wifi_counter == 10  then
-        tmr.stop(0)
-        print(" No wifi connection. (Status: " ..wifi.sta.status() ..")")
-        print("\n Logging wifi fail...")
-        fail_type = "wifi_fails"
-        dofile("log_fails.lc")
+    -- print the running time
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~")
+    print(" Timer: " ..string.format("%.2f", tmr.now()/1000/1000) .." seconds elapsed")
+
+    -- shut down
+    print(" Shuting down...")
+    gpio.mode(shutdown_signal_pin, gpio.OUTPUT)
+    -- after setting the pin back to LOW(0) the vreg gets turned off
+    gpio.write(shutdown_signal_pin, 1)
+    tmr.delay(250*1000)
+    gpio.write(shutdown_signal_pin, 0)
+end
+
+--------------------------------------
+-- get the battery voltage
+--------------------------------------
+vbat = 0
+function get_battery_voltage()
+    -- get the raw ADC value
+    local adc_value = adc.read(0)
+    -- calculate the input voltage
+    local vin = vref/1024 * adc_value * (r1+r2)/r2
+    -- return it (format: 0.00)
+    return string.format("%.2f", vin)
+end
+
+--------------------------------------
+-- get the RSSI for the currently configured AP
+-- https://github.com/nodemcu/nodemcu-firmware/wiki/nodemcu_api_en#wifistagetap
+--------------------------------------
+rssi = 0 
+quality = 0
+function get_rssi()
+   function listap(t)
+     for bssid,v in pairs(t) do
+      local ssid, l_rssi, authmode, channel = string.match(v, "([^,]+),([^,]+),([^,]+),([^,]+)")
+        rssi = l_rssi
+        quality = 2 * (rssi + 100)
+        --print("GOT RSSI: "..rssi.." ("..quality.."%)")
+     end
+   end
+  ssid, tmp, bssid_set, bssid=wifi.sta.getconfig() 
+  scan_cfg={}
+  scan_cfg.ssid=ssid 
+  if bssid_set==1 then scan_cfg.bssid=bssid else scan_cfg.bssid=nil end
+  scan_cfg.channel=wifi.getchannel()
+  scan_cfg.show_hidden=0
+  ssid, tmp, bssid_set, bssid=nil, nil, nil, nil
+  wifi.sta.getap(scan_cfg, 1, listap)
+end
+
+--------------------------------------
+-- ignore first reading because it is old, 
+-- just read it to start a new conversion
+ds_temp = 0
+if GET_DS_TEMPERATURE then
+    ds_ignore = true
+    dofile("get_temp.lc")
+end
         
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~")
-        print(" Forcing DeepSleep...")
-        dofile("deepsleep.lc")
+--------------------------------------
+-- get the wifi signal strength
+if GET_WIFI_STRENGTH then
+    get_rssi()
+end
+get_rssi = nil
+
+--------------------------------------
+-- MAIN LOOP
+--------------------------------------
+-- let the tempsensor finish the temp conversion
+tmr.alarm(0, 800, 0, function() 
+    -- get the actual temperature
+    if GET_DS_TEMPERATURE then
+        dofile("get_temp.lc")
     end
-    wifi_counter = wifi_counter + 1
+    -- start checking if got a ip
+    tmr.alarm(0, 250, 1, function() 
+        if wifi.sta.getip() == nil then
+            print(".")
+        else
+            -- stop checking
+            tmr.stop(0)
+            
+            -- print the ip address, the time it took to get it and the rssi
+            ip_address = wifi.sta.getip()
+            print(" IP address: " ..ip_address ..string.format(" (%.2fs)", tmr.now()/1000/1000))
+            if GET_WIFI_STRENGTH then
+                print(" RSSI: " ..rssi .." (" ..quality .."%)")
+            end
+    
+            -- get and print the battery voltage
+            if GET_BATTERY_VOLTAGE then
+                vbat = get_battery_voltage()
+                print(" Battery voltage: " ..vbat .."V")
+            end
+            get_battery_voltage = nil
+            
+            -- print the temperature
+            if GET_DS_TEMPERATURE then
+                print(" Temperature: " ..ds_temp .."'C")
+            end
+            GET_DS_TEMPERATURE = nil
+               
+            -- a small delay to let the heap recover
+            tmr.alarm(0, 250, 0, function()
+                -- launch the API Request
+                dofile(api_request ..".lc")
+                
+                -- in some rare cases the request doesn't get sent the first time,
+                -- so we try it 4 additional times with 10 seconds delay, 
+                -- just to go sure the request really gets sent.
+                max_retries = 4
+                retry_delay = 10
+                tmr.alarm(0, retry_delay*1000, 1, function()
+                    -- light up the error led for 500ms
+                    gpio.write(error_led_pin, 1)
+                    tmr.alarm(2, 500, 0, function()
+                        gpio.write(error_led_pin, 0)
+                    end)
+                    
+                    -- try to re-send the API Request
+                    print(" Re-Sending the API Request...")
+                    dofile(api_request ..".lc")
+    
+                    -- give up after "max_retries" retries and shut down
+                    max_retries = max_retries - 1
+                    if max_retries == 0 then
+                        tmr.stop(0)
+                        print("\n -> Could not send the Request! :(")
+                        vreg_shutdown() 
+                    end
+                end)
+            end)
+        end
+    
+        -- shut down if could not connect to the ap after 15 seconds
+        if tmr.now()/1000/1000 >= 15 then
+            tmr.stop(0)
+            print("\n No wifi connection. (Status: " ..wifi.sta.status() ..")")     
+            vreg_shutdown() 
+        end
+    end)
 end)
 
---------------------------------------
--- Debug heap
-if HEAP_DEBUG then
-    tmr.alarm(4, 100, 1, function()
-        print(node.heap())
-    end)
-end
+-- blink/toggle the activity led
+tmr.alarm(1, 800, 1, function()
+    if gpio.read(act_led_pin) == 0 then
+        gpio.write(act_led_pin, 1)
+    else
+        gpio.write(act_led_pin, 0)
+    end
+end)
