@@ -5,9 +5,9 @@ A **Ultra Low Standby Power Project** which pushes the state of a connected swit
 ##Partlist:
 * ATtiny25(45/85)
 * Voltage regulator with enable/shutdown pin (tested with SPX3819, AS1363, LT1763)
-* ESP-12(E)
+* ESP-07 / ESP-12(E)
 * Changeover/SPDT Reed switch (could be any other)
-* Some resistors, capacitors, and leds(r, g, b)
+* Some resistors, capacitors, and 3 leds(r,g,b)
 
 ##Schematic
 ![alt text](https://raw.githubusercontent.com/8n1/ESP8266-Tiny-Door-and-Window-Sensor/master/Schematic/tiny-door-and-window-sensor_v01.png "Door and window sensor - Schematic")
@@ -44,11 +44,11 @@ Only two files must be edited.
 
 ##Breadboard setup
 By using one  [my own ESP Breakout Adapters](https://github.com/8n1/ESP8266-Breakout-Adapter), the breadboard setup is quite simple and looks like this: TODO (Picture)
-![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Door and window sensor - breadboard setup")
+- ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Door and window sensor - breadboard setup")
 
 ##A small pcb
 I've also designed a small pcb for this project: TODO (Picture)
-![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Door and window sensor - pcb v0.2")
+- ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Door and window sensor - pcb v0.2")
 
 ###More details and explainations: (in german) TODO
 
