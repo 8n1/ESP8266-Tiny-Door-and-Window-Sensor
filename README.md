@@ -16,7 +16,7 @@ A **Ultra Low Standby Power Project** which pushes the state of a connected swit
 The standby current consumption is about 330nA(*Nanoampere*) @3.8V.
 The biggest current sucker in standby is the ATtiny in power-down sleep mode (~300nA).
 
-Beside a few other tricks I've had to come up with to get the current consumption really that low, a in a few usecases important one is to use a changover/SPDT (3pin) wakeup switch(the one with 3 pins). Using one of these I can get rid of the pullup resistor that is otherwise needed when using a normal (2pin) switch. This means that the current consumption is in both states(door/window is open AND door/window is closed) equaly low. 
+Beside a few other tricks I've had to come up with to get the current consumption really that low, a in some of my usecases important one is to use a changover/SPDT (3pin) wakeup switch(the one with 3 pins). Using one of these I can get rid of the pullup resistor that is otherwise needed when using a normal (2pin) switch. This means that the current consumption is in both states(door/window is open AND door/window is closed) equaly low. 
 
 
 ##Procedure
