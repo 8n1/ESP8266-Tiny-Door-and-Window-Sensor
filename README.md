@@ -5,7 +5,7 @@ A **Ultra Low Standby Power Project** which pushes the state of a connected swit
 ##Partlist:
 * ATtiny25(45/85)
 * Voltage regulator with enable/shutdown pin (tested with SPX3819, AS1363, LT1763)
-* ESP8266 (ESP-12)
+* ESP-12(E)
 * Changeover/SPDT Reed switch (could be any other)
 * Some resistors, capacitors, and leds(r, g, b)
 
@@ -54,7 +54,7 @@ I've also designed a small pcb for this project: TODO (Picture)
 
 
 ###Resources
-- NodeMCU Firmware: http://frightanic.com/nodemcu-custom-build/
+- NodeMCU Firmware(the included firmware has been built using this service): http://frightanic.com/nodemcu-custom-build/
 - NodeMCU API: https://github.com/nodemcu/nodemcu-firmware/wiki/nodemcu_api_en
 - ATtiny25/45/85 Datasheet: http://www.atmel.com/Images/atmel-2586-avr-8-bit-microcontroller-attiny25-attiny45-attiny85_datasheet.pdf
 - Fusebit Calculator: http://www.engbedded.com/fusecalc/
