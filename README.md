@@ -54,10 +54,12 @@ I've also designed a small pcb for this project: TODO (Picture)
 
 
 ###Resources
-- http://frightanic.com/nodemcu-custom-build/
-- https://github.com/nodemcu/nodemcu-firmware/wiki/nodemcu_api_en
-- http://www.atmel.com/Images/atmel-2586-avr-8-bit-microcontroller-attiny25-attiny45-attiny85_datasheet.pdf
-- http://www.engbedded.com/fusecalc/
+- NodeMCU Firmware: http://frightanic.com/nodemcu-custom-build/
+- NodeMCU API: https://github.com/nodemcu/nodemcu-firmware/wiki/nodemcu_api_en
+- ATtiny25/45/85 Datasheet: http://www.atmel.com/Images/atmel-2586-avr-8-bit-microcontroller-attiny25-attiny45-attiny85_datasheet.pdf
+- Fusebit Calculator: http://www.engbedded.com/fusecalc/
+- SPX3819: http://www.exar.com/common/content/document.ashx?id=615&languageid=1033&type=datasheet&part=spx3819
+- AS1363: http://ams.com/eng/content/download/12507/219217/12422
 
 Services
 - https://github.com/alixaxel/ArrestDB
