@@ -6,7 +6,7 @@ A **Ultra Low Standby Power Project** which pushes the state of a connected swit
 * ATtiny25(45/85)
 * Voltage regulator with enable/shutdown pin (tested with SPX3819, AS1363, LT1763)
 * ESP8266 (ESP-12)
-* Changeover/SPDT switch (could be any other)
+* Changeover/SPDT Reed switch (could be any other)
 * Some resistors, capacitors, and leds(r, g, b)
 
 ##Schematic
@@ -43,7 +43,7 @@ Only two files must be edited.
 * (go sure the fusebits are set correct (default value))
 
 ##Breadboard setup
-By using one my own ESP Breakout Adapters, the breadboard setup is quite simple and looks like this: TODO 
+By using one  [my own ESP Breakout Adapters](https://github.com/8n1/ESP8266-Breakout-Adapter), the breadboard setup is quite simple and looks like this: TODO 
 ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Door and window sensor - breadboard setup")
 
 ##A small pcb
