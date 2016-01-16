@@ -19,12 +19,12 @@ SSID = "xxxxx"
 PASSWD = "xxxxx"
 
 ----------------------------------------------------------
--- Sensor ID
+-- Sensor ID - Unique identifier
 ----------------------------------------------------------
-SENSOR_ID = 2
+SENSOR_ID = "1"
 
 ----------------------------------------------------------
--- The service to use (choose one)
+-- The service to use (choose one and configure the corresponding "..._request.lua" script)
 ----------------------------------------------------------
 api_request = "arrestdb_request"
 --api_request = "iftft_maker_request"
@@ -51,6 +51,10 @@ act_led_pin = 5
 ok_led_pin = 6
 error_led_pin = 7
 
+----------------------------------------------------------
+-- OPTIONAL FEATURES
+-- To activate a feature set it to true
+----------------------------------------------------------
 
 ----------------------------------------------------------
 -- Get the Wifi strength (OPTIONAL)
