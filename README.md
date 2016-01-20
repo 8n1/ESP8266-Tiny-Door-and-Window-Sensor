@@ -44,14 +44,16 @@ Only two files must be edited.
 
 ##Breadboard setup
 By using one  [my own ESP Breakout Adapters](https://github.com/8n1/ESP8266-Breakout-Adapter), the breadboard setup is quite simple and looks like this: TODO (Picture)
-- ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Door and window sensor - breadboard setup")
+- ![Tiny dooor and window sensor - Breadboard setup](http://i.imgur.com/UxNmD7Jl.jpg "Door and window sensor - breadboard setup")
 
 ##A small pcb
 I've also designed a small pcb for this project: TODO (Picture)
-- ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Door and window sensor - pcb v0.2")
+- ![Tiny dooor and window sensor - Project PCB (Front)](http://i.imgur.com/feoe9PJl.jpg "Door and window sensor - Project PCB v0.2 (Front)")
+- ![Tiny dooor and window sensor - Project PCB (Back)](http://i.imgur.com/zyDUfXgl.jpg "Door and window sensor - Project PCB v0.2 (Back)")
+More about the pcb in the near futre.
 
-###More details and explainations: (in german) TODO
-
+###More details and explainations: (in german)
+http://www.forum-raspberrypi.de/Thread-esp8266-tuer-und-fenster-sensor-alarm-mit-sehr-geringem-standby-verbrauch-1%C2%B5a
 
 ###Resources
 - NodeMCU Firmware(the included firmware has been built using this service): http://frightanic.com/nodemcu-custom-build/
