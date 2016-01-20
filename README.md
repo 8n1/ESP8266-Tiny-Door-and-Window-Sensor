@@ -43,13 +43,13 @@ Only two files must be edited.
 * (go sure the fusebits are set correct (default value))
 
 ##Breadboard setup
-By using one  [my own ESP Breakout Adapters](https://github.com/8n1/ESP8266-Breakout-Adapter), the breadboard setup is quite simple and looks like this: TODO (Picture)
-- ![Tiny dooor and window sensor - Breadboard setup](http://i.imgur.com/UxNmD7Jl.jpg "Door and window sensor - breadboard setup")
+By using one  [my own ESP Breakout Adapters](https://github.com/8n1/ESP8266-Breakout-Adapter), the breadboard setup is quite simple and looks like this:
+![Tiny dooor and window sensor - Breadboard setup](http://i.imgur.com/UxNmD7Jl.jpg "Door and window sensor - breadboard setup")
 
 ##A small pcb
-I've also designed a small pcb for this project: TODO (Picture)
-- ![Tiny dooor and window sensor - Project PCB (Front)](http://i.imgur.com/feoe9PJl.jpg "Door and window sensor - Project PCB v0.2 (Front)")
-- ![Tiny dooor and window sensor - Project PCB (Back)](http://i.imgur.com/zyDUfXgl.jpg "Door and window sensor - Project PCB v0.2 (Back)")
+I've also designed a small pcb for this project:
+![Tiny dooor and window sensor - Project PCB (Front)](http://i.imgur.com/feoe9PJl.jpg "Door and window sensor - Project PCB v0.2 (Front)")
+![Tiny dooor and window sensor - Project PCB (Back)](http://i.imgur.com/zyDUfXgl.jpg "Door and window sensor - Project PCB v0.2 (Back)")
 More about the pcb in the near futre.
 
 ###More details and explainations: (in german)
