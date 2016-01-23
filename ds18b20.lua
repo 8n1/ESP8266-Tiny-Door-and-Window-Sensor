@@ -3,6 +3,7 @@
 -- NODEMCU TEAM
 -- LICENCE: http://opensource.org/licenses/MIT
 -- Vowstar <vowstar@nodemcu.com>
+-- 2015/02/14 sza2 <sza2trash@gmail.com> Fix for negative values
 --------------------------------------------------------------------------------
 
 -- Set module name as parameter of require
@@ -15,7 +16,7 @@ _G[modname] = M
 -- DS18B20 dq pin
 local pin = nil
 -- DS18B20 default pin
-local defaultPin = 5
+local defaultPin = 9
 --------------------------------------------------------------------------------
 -- Local used modules
 --------------------------------------------------------------------------------
@@ -96,18 +97,27 @@ function readNumber(addr, unit)
       crc = ow.crc8(string.sub(data,1,8))
       -- print("CRC="..crc)
       if (crc == data:byte(9)) then
-        if(unit == nil or unit == C) then
-          t = (data:byte(1) + data:byte(2) * 256) * 625
-        elseif(unit == F) then
-          t = (data:byte(1) + data:byte(2) * 256) * 1125 + 320000
-        elseif(unit == K) then
-          t = (data:byte(1) + data:byte(2) * 256) * 625 + 2731500
+        t = (data:byte(1) + data:byte(2) * 256)
+        if (t > 32767) then
+          t = t - 65536
+        end
+
+		if (addr:byte(1) == 0x28) then
+		  t = t * 625  -- DS18B20, 4 fractional bits
+		else
+		  t = t * 5000 -- DS18S20, 1 fractional bit
+		end
+
+        if(unit == nil or unit == 'C') then
+          -- do nothing
+        elseif(unit == 'F') then
+          t = t * 1.8 + 320000
+        elseif(unit == 'K') then
+          t = t + 2731500
         else
           return nil
         end
         t = t / 10000
-        -- print("Temperature="..t1.."."..t2.." Centigrade")
-        -- result = t1.."."..t2
         return t
       end
       tmr.wdclr()
