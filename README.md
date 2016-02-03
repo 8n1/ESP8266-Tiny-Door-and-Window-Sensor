@@ -1,12 +1,18 @@
 ##Tiny Door and Window Sensor/Alarm with Ultra Low Standby Power (<1µA)
 
-A **Ultra Low Standby Power Project** which pushes the state of a connected switch(reed/magnet or any other) every time it changes to one of 4 different services(you need to chooose and configure one). Supported "services": [**ArrestDB**](https://github.com/alixaxel/ArrestDB)(this is not an online service but a php script which runs on my raspberry pi), [**IFTTT**](https://ifttt.com/), [**Pushingbox**](https://www.pushingbox.com/) and [**Thingspeak**](https://thingspeak.com/).
+A **Ultra Low Standby Power Project** which pushes the state of a connected switch(reed/magnet or any other) every time it changes to one of 4 different services(you need to chooose and configure one). <br />
+Available services (can be easily expanded): 
+* [**IFTTT**](https://ifttt.com/)
+* [**Pushingbox**](https://www.pushingbox.com/)
+* [**Thingspeak**](https://thingspeak.com/) 
+* [**ArrestDB**](https://github.com/alixaxel/ArrestDB)(this is not an online service but a nice php script which writes the state of the switch to a database (on pi))
+
 
 ##Partlist:
 * ATtiny25(45/85)
 * Voltage regulator with enable/shutdown pin (tested with SPX3819, AS1363, LT1763)
 * ESP-07 / ESP-12(E)
-* Changeover/SPDT Reed switch (could be any other)
+* Changeover/SPDT Reed switch
 * Some resistors, capacitors, and 3 leds(r,g,b)
 
 ##Schematic
@@ -42,11 +48,14 @@ Only two files must be edited.
 * Compile and upload the sketch (no configuration needed)
 * (go sure the fusebits are set correct (default value))
 
-##Breadboard setup
-By using one  [my own ESP Breakout Adapters](https://github.com/8n1/ESP8266-Breakout-Adapter), the breadboard setup is quite simple and looks like this:
+##Pictures
+![Tiny dooor and window sensor - Breadboard setup](http://i.imgur.com/1PhXK7q.jpg "Door and window sensor - breadboard setup")
+
+####Breadboard setup
+Using one of [my own Breakout Adapters](https://github.com/8n1/ESP8266-Breakout-Adapter):
 ![Tiny dooor and window sensor - Breadboard setup](http://i.imgur.com/UxNmD7Jl.jpg "Door and window sensor - breadboard setup")
 
-##A small pcb
+####A small pcb
 I've also designed a small pcb for this project: (More about the pcb in the near futre.)
 ![Tiny dooor and window sensor - Project PCB (Front)](http://i.imgur.com/feoe9PJl.jpg "Door and window sensor - Project PCB v0.2 (Front)")
 ![Tiny dooor and window sensor - Project PCB (Back)](http://i.imgur.com/zyDUfXgl.jpg "Door and window sensor - Project PCB v0.2 (Back)")
