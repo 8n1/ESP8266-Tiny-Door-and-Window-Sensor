@@ -1,7 +1,7 @@
 ##Tiny Door and Window Sensor/Alarm with Ultra Low Standby Power (<1µA)
 
 A **Ultra Low Standby Power Project** which pushes the state of a connected switch(reed/magnet or any other) every time it changes to one of 4 different services(you need to chooose and configure one). <br />
-Available services (can be easily expanded): 
+Available(ready to use) services rigght now (can be easily expanded): 
 * [**IFTTT**](https://ifttt.com/)
 * [**Pushingbox**](https://www.pushingbox.com/)
 * [**Thingspeak**](https://thingspeak.com/) 
