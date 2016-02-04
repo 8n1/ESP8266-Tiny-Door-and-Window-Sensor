@@ -9,6 +9,14 @@
 -- $temp$      = ds_temp       = ds18b20 temperature
 -- $sensor_id$ = SENSOR_ID    = the unique id of the sensor
 
+-- $date$   =   Do, 04 Feb 2016
+-- $wd$     =   Do
+-- $d$      =   04
+-- $m$      =   Feb
+-- $y$      =   2016
+-- $time$   =   19:36
+-- $time_n$ =   19:36:44
+
 --------------------------------------
 -- for a standalone test uncomment this line:
 --switch_pin=6 quality=0 vbat=0 vreg_shutdown=function()end
@@ -53,6 +61,8 @@ print(" Launching Pushingbox Scenario: " ..DEVID)
 -- append all the data to single variable / build the GET Query String
 --------------------------------------
 data = "state="..switch_state .."&rssi="..quality .."&vbat="..vbat .."&temperature="..ds_temp .."&sensor_id="..SENSOR_ID
+-- append date and time variables
+data = data ..g_date
 --print(" Data: " ..data)
 
 --------------------------------------

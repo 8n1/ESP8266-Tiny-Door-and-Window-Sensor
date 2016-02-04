@@ -1,10 +1,11 @@
 --------------------------------------------
 
 -- tiny Door and Window Sensor with Ultra Low Standby Power (<1µA)
--- Version: 0.2
+-- Version: 0.2.1
 -- Author: Johannes S. (joh.raspi)
 -- Changelog: 
 --  * Tempsensor added
+--  * Date and Time added
 
 -- Default running time: 3-5 seconds
 -- If GET_WIFI_STRENGTH is activated: 4-6 seconds
@@ -22,7 +23,7 @@ print(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 dofile("config.lc")
 
 -- set ssid and password
-wifi.sta.config(SSID, PASSWD)
+--wifi.sta.config(SSID, PASSWD)
 -- configure as client only
 wifi.setmode(wifi.STATION)
 -- connect to the ap
@@ -148,36 +149,42 @@ tmr.alarm(0, 800, 0, function()
                 print(" Temperature: " ..ds_temp .."'C")
             end
             GET_DS_TEMPERATURE = nil
-               
+            
+            g_date = ""
             -- a small delay to let the heap recover
-            tmr.alarm(0, 250, 0, function()
-                -- launch the API Request
-                dofile(api_request ..".lc")
-                
-                -- in some rare cases the request doesn't get sent the first time,
-                -- so we try it 4 additional times with 10 seconds delay, 
-                -- just to go sure the request really gets sent.
-                max_retries = 4
-                retry_delay = 10
-                tmr.alarm(0, retry_delay*1000, 1, function()
-                    -- light up the error led for 500ms
-                    gpio.write(error_led_pin, 1)
-                    tmr.alarm(2, 500, 0, function()
-                        gpio.write(error_led_pin, 0)
-                    end)
-                    
-                    -- try to re-send the API Request
-                    print(" Re-Sending the API Request...")
+            tmr.alarm(0, 350, 0, function()
+                if USE_DATE_TIME then 
+                    print("\n Getting time...")
+                    dofile("get_time.lc")
+                else
+                    -- launch the API Request
                     dofile(api_request ..".lc")
-    
-                    -- give up after "max_retries" retries and shut down
-                    max_retries = max_retries - 1
-                    if max_retries == 0 then
-                        tmr.stop(0)
-                        print("\n -> Could not send the Request! :(")
-                        vreg_shutdown() 
-                    end
-                end)
+                    
+                    -- in some rare cases the request doesn't get sent the first time,
+                    -- so we try it 4 additional times with 10 seconds delay, 
+                    -- just to go sure the request really gets sent.
+                    max_retries = 4
+                    retry_delay = 10
+                    tmr.alarm(0, retry_delay*1000, 1, function()
+                        -- light up the error led for 500ms
+                        gpio.write(error_led_pin, 1)
+                        tmr.alarm(2, 500, 0, function()
+                            gpio.write(error_led_pin, 0)
+                        end)
+                        
+                        -- try to re-send the API Request
+                        print(" Re-Sending the API Request...")
+                        dofile(api_request ..".lc")
+        
+                        -- give up after "max_retries" retries and shut down
+                        max_retries = max_retries - 1
+                        if max_retries == 0 then
+                            tmr.stop(0)
+                            print("\n -> Could not send the Request! :(")
+                            vreg_shutdown() 
+                        end
+                    end)
+                end
             end)
         end
     
