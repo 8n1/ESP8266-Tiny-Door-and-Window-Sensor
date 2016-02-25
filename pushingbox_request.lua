@@ -2,7 +2,7 @@
 -- Launches a Pushingbox Scenario
 -- https://www.pushingbox.com/api.php
 --------------------------------------
--- Used Variables:  (note: you can use as many variables, and name them, as you like.)
+-- Used Variables:  (note: you can use as many variables, and name them as you like.)
 -- $state$     = switch_state  = the state of the switch
 -- $rssi$      = quality       = the wifi signal strength in %
 -- $vbat$      = vbat          = the battery voltage
@@ -56,7 +56,7 @@ data = "state="..switch_state .."&rssi="..quality .."&vbat="..vbat .."&temperatu
 --print(" Data: " ..data)
 
 --------------------------------------
--- measure the time it takes to get a respone
+-- to measure the time it takes to get a respone
 local re_timer = tmr.now()
 --------------------------------------
 -- flag that checks if the on:receive event already got called
