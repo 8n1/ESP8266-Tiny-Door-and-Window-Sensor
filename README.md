@@ -1,6 +1,6 @@
 ##Tiny Door and Window Sensor/Alarm with Ultra Low Standby Power (<1µA)
 
-##Update 03. January 2017
+##Update 03. February 2017
 
 Changes v0.3:  
 * Switched from NodeMCU/Lua to the Arduino IDE  
