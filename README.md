@@ -1,12 +1,26 @@
 ##Tiny Door and Window Sensor/Alarm with Ultra Low Standby Power (<1µA)
 
+##Update 03. January 2017
+
+Changes v0.3:  
+* Switched from NodeMCU/Lua to the Arduino IDE  
+* Series resistor for the reed switch  
+* Pulldown resistor for the shutdown signal  
+* Error and OK led removed  
+
+
+-----
+##The following description is not up to date!
+-----
+
 A **Ultra Low Standby Power Project** which pushes the state of a connected switch(reed/magnet or any other) every time it changes to one of 4 different services(you need to chooose and configure one). <br />
-Available(ready to use) services rigght now (can be easily expanded): 
+Available(ready to use) services right now (can be easily expanded): 
 * [**IFTTT**](https://ifttt.com/)
-* [**Pushingbox**](https://www.pushingbox.com/)
+* [**Pushingbox**](https://www.pushingbox.com/) 
 * [**Thingspeak**](https://thingspeak.com/) 
 * [**ArrestDB**](https://github.com/alixaxel/ArrestDB)(this is not an online service but a nice php script which writes the state of the switch to a database (on pi))
 
+/3/4/5/6/7
 
 ##Partlist:
 * ATtiny25(45/85)
