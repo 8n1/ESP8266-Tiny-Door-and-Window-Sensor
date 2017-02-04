@@ -90,8 +90,8 @@ void loop()
     PCMSK |= ((1<<PCINT0) | (1<<PCINT3));
 
     // The ATtiny13 Microcore uses the watchdog timer interrupt to keep track of the millis.
-    // Since the interrupt is still active in the power down sleep mode, disable it before
-    // the entering sleep mode.
+    // Since the interrupt is still active in the power down sleep mode disable it before
+    // entering sleep mode.
     WDTCR &= ~(1<<WDTIE);
     // Schlafmodus(Power-down) konfigurieren
     set_sleep_mode(SLEEP_MODE_PWR_DOWN);

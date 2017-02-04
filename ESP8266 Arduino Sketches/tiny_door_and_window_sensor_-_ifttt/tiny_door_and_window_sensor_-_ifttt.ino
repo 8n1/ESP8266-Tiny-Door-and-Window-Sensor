@@ -2,17 +2,26 @@
   Tiny door and window sensor v0.3
   IFTTT example
 
+  TODO: Add description
+  
+  
+  Resources:
 
   IFTTT API:
-  https://www.pushingbox.com/api.php
+  https://ifttt.com/maker
 
+  ESP8266 Arduino core docoumentation:
   https://github.com/esp8266/Arduino/tree/master/doc
-  https://github.com/esp8266/Arduino/blob/master/doc/libraries.md
-
-  Fast wifi connection after power down:
+  https://github.com/esp8266/Arduino/blob/master/doc/libraries.md  
+    
+  Espressif FAQ -> Fast wifi connection after power down:
   http://espressif.com/sites/default/files/documentation/espressif_faq_en.pdf
+  
   Reading/Writing a long from/to the EEPROM:
   http://playground.arduino.cc/Code/EEPROMReadWriteLong
+
+  Converting the wifi signal strength from dbm to %
+  http://stackoverflow.com/questions/15797920/how-to-convert-wifi-signal-strength-from-quality-percent-to-rssi-dbm
 
 */
 
@@ -69,7 +78,7 @@ void vreg_shutdown(int blink_count = 0) {
   Serial.printf("\n Time elapsed: %i.%i Seconds\n", int(millis() / 1000), int(millis() % 1000));
   Serial.println(" Shuting down...");
 
-  // save the overall running time (uptime) in the "EEPROM"
+  // store the overall running time (uptime) in the "EEPROM"
   unsigned long uptime_millis = millis();
   EEPROM.begin(EEPROM_SIZE);
   EEPROM.write(UPTIME_COUNTER_ADDRESS, (uptime_millis & 0xFF));
@@ -155,6 +164,7 @@ void setup()
   Serial.begin(115200);
   Serial.println("\n");
 
+  // turn on the activity led
   pinMode(ACT_LED_PIN, OUTPUT);
   digitalWrite(ACT_LED_PIN, LOW);
 
@@ -171,9 +181,9 @@ void setup()
   query_string += "&value3=" + String(switch_state);
 
   if (switch_state == 0)
-    ifttt_event = ifttt_event_switch_open;
-  else
     ifttt_event = ifttt_event_switch_closed;
+  else
+    ifttt_event = ifttt_event_switch_open;
   
   // LAST UPTIME
   EEPROM.begin(EEPROM_SIZE);
@@ -208,8 +218,6 @@ void setup()
   }
 
   // Try to send the HTTP request up to 3 times in case of error
-  // Then activate permanent DeepSleep and show
-  // a error or success notification using the status led
   for (int i = 0; i < SEND_RETRIES; i++) {
     Serial.println("Try: " + String(i + 1));
     int success = send_http_request();

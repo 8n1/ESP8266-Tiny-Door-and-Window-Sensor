@@ -132,7 +132,6 @@ int send_http_request() {
       }
       else {
         Serial.println("\n -> REQUEST FAILED, STATUS CODE NOT 200! <-\n");
-        client.stop();
         return false;
       }
       Serial.println(line);
@@ -160,9 +159,9 @@ void setup()
 
   Serial.begin(115200);
   Serial.println("\n");
-
+  
+  // turn on the activity led
   pinMode(ACT_LED_PIN, OUTPUT);
-  // blue on-board led on GPIO2 is connected active LOW
   digitalWrite(ACT_LED_PIN, LOW);
 
   // VBAT

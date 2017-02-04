@@ -7,7 +7,7 @@
   
   Resources:
   
-  MQTT Library:
+  Used MQTT library:
   https://github.com/knolleary/pubsubclient
   
   ESP8266 Arduino core docoumentation:
@@ -137,8 +137,8 @@ void setup()
   Serial.begin(115200);
   Serial.println("\n");
   
+  // turn on the activity led
   pinMode(ACT_LED_PIN, OUTPUT);
-  // blue on-board led on GPIO2 is connected active LOW
   digitalWrite(ACT_LED_PIN, LOW);
   
   // VBAT
