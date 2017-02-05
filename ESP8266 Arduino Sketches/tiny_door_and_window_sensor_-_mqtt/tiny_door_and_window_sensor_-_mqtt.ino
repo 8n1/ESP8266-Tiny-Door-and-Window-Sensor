@@ -1,25 +1,25 @@
 /*
   Tiny door and window sensor v0.3
   MQTT example
-  
+
   TODO: Add description
-  
-  
+
+
   Resources:
-  
+
   Used MQTT library:
   https://github.com/knolleary/pubsubclient
-  
+
   ESP8266 Arduino core docoumentation:
   https://github.com/esp8266/Arduino/tree/master/doc
-  https://github.com/esp8266/Arduino/blob/master/doc/libraries.md  
-    
+  https://github.com/esp8266/Arduino/blob/master/doc/libraries.md
+
   Espressif FAQ -> Fast wifi connection after power down:
   http://espressif.com/sites/default/files/documentation/espressif_faq_en.pdf
-  
+
   Reading/Writing a long from/to the EEPROM:
   http://playground.arduino.cc/Code/EEPROMReadWriteLong
-  
+
   Converting the wifi signal strength from dbm to %
   http://stackoverflow.com/questions/15797920/how-to-convert-wifi-signal-strength-from-quality-percent-to-rssi-dbm
 
@@ -46,8 +46,13 @@ extern "C" {
 #include "user_interface.h" // needed for wifi_get_channel()
 }
 
-const char* ssid            = "ssid";
-const char* password        = "password";
+const char* ssid        = "ssid";
+const char* password    = "password";
+
+#define USE_STATIC_IP true  // if set to false a dynamic ip address will be used
+IPAddress staticIP  (192, 168, 1, 23);
+IPAddress gateway   (192, 168, 1, 1);
+IPAddress subnet    (255, 255, 255, 0);
 
 const char* mqtt_server     = "192.168.1.111";
 const int mqtt_server_port  = 1883;
@@ -57,20 +62,15 @@ const char* state_topic     = "fhem/sensor4/state/set";
 const char* rssi_topic      = "fhem/sensor4/rssi/set";
 const char* uptime_topic    = "fhem/sensor4/uptime/set";
 
-#define USE_STATIC_IP true  // set to false if a dynamic ip should be used
-IPAddress staticIP  (192, 168, 1, 23);
-IPAddress gateway   (192, 168, 1, 1);
-IPAddress subnet    (255, 255, 255, 0);
+const int switch_pin    = 4;  // GPIO4
+const int shutdown_pin  = 5;  // GPIO5
+const int act_led_pin   = 2;  // GPIO2 - blue on-board led (active low)
 
-#define SWITCH_PIN    4  // GPIO4
-#define SHUTDOWN_PIN  5  // GPIO5
-#define ACT_LED_PIN   2  // GPIO2 - blue on-board led (active low)
+int connection_retry_count = 3;
 
 #define R1   4700
 #define R2   1000
 #define VREF 1.0
-
-#define CONNECT_RETRIES 3
 
 #define EEPROM_SIZE             5   // bytes
 #define WIFI_CHANNEL_ADDRESS    0   // 1 byte
@@ -79,37 +79,11 @@ IPAddress subnet    (255, 255, 255, 0);
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-void vreg_shutdown(int blink_count = 0) {
-
-  for (int i = 0; i < blink_count; i++) {
-    digitalWrite(ACT_LED_PIN, HIGH);
-    delay(200);
-    digitalWrite(ACT_LED_PIN, LOW);
-    delay(200);
-  }
-
-  pinMode(SHUTDOWN_PIN, OUTPUT);
-  digitalWrite(SHUTDOWN_PIN, HIGH);
-  delay(50);
+byte last_wifi_channel, new_wifi_channel;
+float vbat;
+int rssi, switch_state;
+unsigned long uptime;
   
-  Serial.printf("\n Time elapsed: %i.%i Seconds\n", int(millis() / 1000), int(millis() % 1000));
-  Serial.println(" Shuting down...");
-
-  // store the overall running time (uptime) in the "EEPROM"
-  unsigned long uptime_millis = millis();
-  EEPROM.begin(EEPROM_SIZE);
-  EEPROM.write(UPTIME_COUNTER_ADDRESS, (uptime_millis & 0xFF));
-  EEPROM.write(UPTIME_COUNTER_ADDRESS + 1, ((uptime_millis >> 8) & 0xFF));
-  EEPROM.write(UPTIME_COUNTER_ADDRESS + 2, ((uptime_millis >> 16) & 0xFF));
-  EEPROM.write(UPTIME_COUNTER_ADDRESS + 3, ((uptime_millis >> 24) & 0xFF));
-  EEPROM.end();
-
-  digitalWrite(SHUTDOWN_PIN, LOW);
-  while (true) {
-    delay(5);
-  }
-}
-
 float get_battery_voltage() {
   int adc_value = analogRead(0);
   float battery_voltage = VREF / 1024.0 * adc_value;
@@ -118,71 +92,75 @@ float get_battery_voltage() {
   return  battery_voltage;
 }
 
+void vreg_shutdown(int error_blink_count = 0) {
+  // blink the led if a error occured
+  for (int i = 0; i < error_blink_count; i++) {
+    digitalWrite(act_led_pin, HIGH);
+    delay(500);
+    digitalWrite(act_led_pin, LOW);
+    delay(500);
+  }
+
+  // initiate the shutdown
+  pinMode(shutdown_pin, OUTPUT);
+  digitalWrite(shutdown_pin, HIGH);
+  delay(50);
+
+  Serial.printf("\n Time elapsed: %i.%03i Seconds\n", int(millis() / 1000), int(millis() % 1000));
+  Serial.println(" Shuting down ...");
+
+  // store the overall running time (uptime) in the "EEPROM"
+  unsigned long uptime_millis = millis();
+  EEPROM.begin(EEPROM_SIZE);
+  EEPROM.write(UPTIME_COUNTER_ADDRESS,     (uptime_millis)       & 0xFF);
+  EEPROM.write(UPTIME_COUNTER_ADDRESS + 1, (uptime_millis >> 8)  & 0xFF);
+  EEPROM.write(UPTIME_COUNTER_ADDRESS + 2, (uptime_millis >> 16) & 0xFF);
+  EEPROM.write(UPTIME_COUNTER_ADDRESS + 3, (uptime_millis >> 24) & 0xFF);
+  EEPROM.end();
+
+  // after setting the pin back to LOW the voltage regulator will be shut down by the ATtiny
+  digitalWrite(shutdown_pin, LOW);
+  while (true) {
+    delay(5);
+  }
+}
+
 void setup()
 {
-  byte last_wifi_channel, new_wifi_channel;
+  // Setup the serial port
+  Serial.begin(115200);
+  Serial.println("\n");
+
+  // Turn on the activity led
+  pinMode(act_led_pin, OUTPUT);
+  digitalWrite(act_led_pin, LOW);
+
   
-  // For a faster wifi connection after power down - See the Espressif FAQ
+  // Restore the wifi channel for a faster wifi connection after power down - See the Espressif FAQ.
+  // If the wifi channel restored from the EEPROM differs from the one currently used
+  // by the AP, it takes longer to connect. This happens for example if the sketch runs for the
+  // first time or the AP automatically changes the wifi channel (if activated).
   EEPROM.begin(EEPROM_SIZE);
   last_wifi_channel = EEPROM.read(WIFI_CHANNEL_ADDRESS);
   EEPROM.end();
   WRITE_PERI_REG(0x600011f4, 1 << 16 | last_wifi_channel);
-  
+
+  // Setup the wifi connection
   WiFi.mode(WIFI_STA);
-#if USE_STATIC_IP == true
-  WiFi.config(staticIP, gateway, subnet);
-#endif
+  #if USE_STATIC_IP == true
+    WiFi.config(staticIP, gateway, subnet);
+  #endif
   WiFi.begin(ssid, password);
-  
-  Serial.begin(115200);
-  Serial.println("\n");
-  
-  // turn on the activity led
-  pinMode(ACT_LED_PIN, OUTPUT);
-  digitalWrite(ACT_LED_PIN, LOW);
-  
-  // VBAT
-  float vbat = get_battery_voltage();
-  char _vbat[String(vbat).length()];
-  String(vbat).toCharArray(_vbat, String(vbat).length() + 1);
-  
-  // RSSI
-  int rssi = 2 * (WiFi.RSSI() + 100);   // read RSSI and convert dbm to % 
-  char _rssi[String(rssi).length()];
-  String(rssi).toCharArray(_rssi, String(rssi).length() + 1);
-  
-  // STATE
-  int switch_state = digitalRead(SWITCH_PIN);
-  char _switch_state[1];
-  String(switch_state).toCharArray(_switch_state, 2);
-  
-  // LAST UPTIME
-  EEPROM.begin(EEPROM_SIZE);
-  long four  = EEPROM.read(UPTIME_COUNTER_ADDRESS);
-  long three = EEPROM.read(UPTIME_COUNTER_ADDRESS + 1);
-  long two   = EEPROM.read(UPTIME_COUNTER_ADDRESS + 2);
-  long one   = EEPROM.read(UPTIME_COUNTER_ADDRESS + 3);
-  EEPROM.end();
-  unsigned long uptime_millis = ((four << 0) & 0xFF) + ((three << 8) & 0xFFFF) + ((two << 16) & 0xFFFFFF) + ((one << 24) & 0xFFFFFFFF);
-  char _uptime[10];
-  String(uptime_millis).toCharArray(_uptime, 10);
-  
-  Serial.println("\nVBAT(V): " + String(_vbat));
-  Serial.println("RSSI(%):" + String(_rssi));
-  Serial.println("Switch state: " + String(_switch_state));
-  Serial.println("Last uptime: " + String(_uptime));
-  Serial.println();
-  
-  // Wait for wifi connection
-  Serial.print("Wait for WiFi... ");
+
+  Serial.println("Waiting for WiFi ... ");
   if (WiFi.waitForConnectResult() != WL_CONNECTED) {
     Serial.println(" Connection failed.");
     vreg_shutdown(5);
   }
-  Serial.printf(" Connected after %i.%is\n",  int(millis() / 1000), int(millis() % 1000));
-  Serial.println(" IP: "   + WiFi.localIP().toString() + " (static)");
-  
-  // store the wifi channel in the EEPROM - See the Espressif FAQ
+  Serial.printf(" Connected after %i.%03is\n",  int(millis() / 1000), int(millis() % 1000));
+  Serial.println(" IP: " + WiFi.localIP().toString());
+
+  // Store the wifi channel in the EEPROM - See the Espressif FAQ
   new_wifi_channel = wifi_get_channel();
   if (new_wifi_channel != last_wifi_channel) {
     EEPROM.begin(EEPROM_SIZE);
@@ -191,29 +169,54 @@ void setup()
     Serial.println(" Wifi channel " + String(new_wifi_channel) + " saved.");
   }
 
+
+  // VBAT
+  vbat = get_battery_voltage();
+  Serial.println("\nVBAT (V): " + String(vbat));
+  
+  // RSSI
+  rssi = 2 * (WiFi.RSSI() + 100);   // read RSSI and convert dbm to %
+  Serial.println("RSSI (%): " + String(rssi));
+
+  // STATE
+  switch_state = digitalRead(switch_pin);
+  Serial.println("State (0/1): " + String(switch_state));
+
+  // LAST UPTIME
+  EEPROM.begin(EEPROM_SIZE);
+  uptime =  ((EEPROM.read(UPTIME_COUNTER_ADDRESS))           & 0xFF);
+  uptime += ((EEPROM.read(UPTIME_COUNTER_ADDRESS + 1) << 8)  & 0xFFFF);
+  uptime += ((EEPROM.read(UPTIME_COUNTER_ADDRESS + 2) << 16) & 0xFFFFFF);
+  uptime += ((EEPROM.read(UPTIME_COUNTER_ADDRESS + 3) << 24) & 0xFFFFFFFF);
+  EEPROM.end();
+  Serial.println("Last uptime (ms): " + String(uptime));
+  
+  
   // MQTT
   client.setServer(mqtt_server, mqtt_server_port);
 
-  int retry_count = CONNECT_RETRIES;
   while (!client.connected()) {
-    Serial.print("\nAttempting MQTT connection...");
+    Serial.print("\nAttempting MQTT connection ... ");
     if (client.connect("ESP8266Client")) {
-      Serial.println("connected");
-
-      client.publish(battery_topic, _vbat);
-      client.publish(rssi_topic, _rssi);
-      client.publish(state_topic, _switch_state);
-      client.publish(uptime_topic, _uptime);
-
+      Serial.println("Connected.");
+      
+      Serial.print("Updating topics ... ");
+      client.publish(battery_topic, String(vbat).c_str());
+      client.publish(rssi_topic,    String(rssi).c_str());
+      client.publish(state_topic,   String(switch_state).c_str());
+      client.publish(uptime_topic,  String(uptime).c_str());
+      Serial.println("Done.");
+      
       vreg_shutdown();
     }
     else {
       Serial.print("failed, rc=");
       Serial.print(client.state()); // States: http://pubsubclient.knolleary.net/api.html#state
-      if (retry_count-- <= 0)
+      if (connection_retry_count-- <= 0) {
         vreg_shutdown(3);
+      }
 
-      Serial.println(" Retries left: " + String(retry_count));
+      Serial.println(" Retries left: " + String(connection_retry_count));
       Serial.println(" Trying again in 5 seconds");
       delay(5000);
     }
